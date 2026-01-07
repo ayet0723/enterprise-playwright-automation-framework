@@ -60,6 +60,7 @@ enterprise-playwright-automation-framework/
 ## 🛠️ Setup
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - Git installed
 - A Salesforce or target application account
@@ -67,24 +68,28 @@ enterprise-playwright-automation-framework/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/enterprise-playwright-automation-framework.git
    cd enterprise-playwright-automation-framework
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Install Playwright browsers**
+
    ```bash
    npx playwright install --with-deps
    ```
 
 4. **Configure environment variables**
-   
+
    Create `.env` file in `src/config/` with your encrypted credentials:
+
    ```
    SALT=mySecretSalt123
    userid=<encrypted_userid>
@@ -92,6 +97,7 @@ enterprise-playwright-automation-framework/
    ```
 
    To encrypt your credentials, run:
+
    ```bash
    node -e "const CryptoJS = require('crypto-js'); const SALT = 'mySecretSalt123'; const userid = 'your@email.com'; const password = 'yourPassword'; console.log('userid=' + CryptoJS.AES.encrypt(userid, SALT).toString()); console.log('password=' + CryptoJS.AES.encrypt(password, SALT).toString());"
    ```
@@ -99,13 +105,17 @@ enterprise-playwright-automation-framework/
 ## 🏃 Running Tests
 
 ### First Time Setup (with Authentication)
+
 Run tests for the first time - you'll complete login + MFA once, then the session is saved:
+
 ```bash
 npx playwright test contactTest.spec.ts
 ```
 
 ### Subsequent Test Runs (No MFA Needed)
+
 All tests will use the saved session from `auth.json`:
+
 ```bash
 # Run all tests
 npx playwright test
@@ -121,12 +131,15 @@ npx playwright test --project="Google Chrome"
 ```
 
 ### Refresh Authentication Session
+
 If the session expires, refresh it by running:
+
 ```bash
 npx playwright test auth.setup.ts --project=setup
 ```
 
 ### View Test Reports
+
 ```bash
 npx playwright show-report
 ```
@@ -134,6 +147,7 @@ npx playwright show-report
 ## 📝 Writing Tests
 
 ### Using Saved Session (Recommended)
+
 ```typescript
 import { test } from "@playwright/test";
 import HomePage from "../pages/HomePage";
@@ -141,13 +155,14 @@ import HomePage from "../pages/HomePage";
 test("my test with saved session", async ({ page }) => {
   // Already authenticated - just navigate
   await page.goto("/lightning/page/home");
-  
+
   const homePage = new HomePage(page);
   // ... your test code
 });
 ```
 
 ### Manual Login (if needed)
+
 ```typescript
 import { test } from "@playwright/test";
 import LoginPage from "../pages/LoginPage";
@@ -172,6 +187,7 @@ test("manual login test", async ({ page }) => {
 ## 🧪 CI/CD
 
 GitHub Actions workflow (`.github/workflows/main.yml`) automatically:
+
 - Runs on push to `test` branch
 - Installs dependencies and browsers
 - Executes test suite
@@ -180,6 +196,7 @@ GitHub Actions workflow (`.github/workflows/main.yml`) automatically:
 ## 📊 Test Reports
 
 After test execution:
+
 - HTML Report: `playwright-report/index.html`
 - Test Results: `test-results/`
 - Videos: Available for failed tests
@@ -189,6 +206,7 @@ After test execution:
 ## 🛠️ Utilities
 
 ### Encryption/Decryption
+
 ```typescript
 import { encrypt, decrypt } from "../utils/CryptojsUtil";
 const encrypted = encrypt("sensitiveData");
@@ -196,6 +214,7 @@ const decrypted = decrypt(encrypted);
 ```
 
 ### Logger
+
 ```typescript
 import logger from "../utils/LoggerUtil";
 logger.info("Test started");
@@ -203,6 +222,7 @@ logger.error("Test failed");
 ```
 
 ### Faker Data Generation
+
 ```typescript
 import { generateTestData, exportToJson } from "../utils/FakerDataUtil";
 const testData = generateTestData(10);
