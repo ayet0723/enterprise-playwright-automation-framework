@@ -1,11 +1,12 @@
 // Include CryptoJS library (make sure to include it in your project)
 // You can download it from: https://cryptojs.gitbook.io/docs/
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CryptoJSUtil = require("crypto-js");
 
 // Encryption function
 export function encrypt(text: string) {
   // Get the SALT from the system environment variable
-  const SALT = process.env.SALT || "omg";
+  const SALT = process.env.SALT || "defaultSALT";
   const cipherText = CryptoJSUtil.AES.encrypt(text, SALT).toString();
   return cipherText;
 }

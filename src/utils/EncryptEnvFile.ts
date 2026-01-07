@@ -13,7 +13,7 @@ if (process.env.NODE_ENV) {
   envFilePath = `${configDir}\\.env.${process.env.NODE_ENV}`;
 }
 
-//console.log(envFilePath);
+console.log(envFilePath);
 
 export function encryptEnvFile() {
   const SALT = process.env.SALT || "defaultSALT";
@@ -28,7 +28,7 @@ export function encryptEnvFile() {
     if (value) {
       const encryptedValue = CryptoJSUtilFile.AES.encrypt(
         value,
-        SALT,
+        SALT
       ).toString();
       return `${key}=${encryptedValue}`;
     }
@@ -54,7 +54,7 @@ export function decryptEnvFile() {
 
     if (value) {
       const decryptedValue = CryptoJSUtilFile.AES.decrypt(value, SALT).toString(
-        CryptoJSUtilFile.enc.Utf8,
+        CryptoJSUtilFile.enc.Utf8
       );
 
       return `${key}=${decryptedValue}`;

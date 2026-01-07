@@ -14,8 +14,17 @@ test("simple login test with self heal", async ({ page }) => {
 test("simple login test", async ({ page }) => {
   const loginPage = new LoginPage(page);
   await loginPage.navigateToLoginPage();
-  await loginPage.fillUsername(decrypt(process.env.username!));
-  await loginPage.fillPassword(decrypt(process.env.password!));
+
+  const decryptedUserId = decrypt(process.env.userid!);
+  const decryptedPassword = decrypt(process.env.password!);
+
+  console.log("SALT:", process.env.SALT);
+  console.log("Encrypted userid:", process.env.userid);
+  console.log("Decrypted userid:", decryptedUserId);
+  console.log("Decrypted password:", decryptedPassword);
+
+  await loginPage.fillUsername(decryptedUserId);
+  await loginPage.fillPassword(decryptedPassword);
   const homePage = await loginPage.clickLoginButton();
   await homePage.expectServiceTitleToBeVisible();
   logger.info("Test for login is completed");

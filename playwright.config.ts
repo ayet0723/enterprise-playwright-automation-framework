@@ -7,8 +7,10 @@ import { defineConfig, devices } from "@playwright/test";
 // require('dotenv').config();
 
 if (!process.env.NODE_ENV) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require("dotenv").config({ path: `${__dirname}//src//config//.env` });
 } else {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require("dotenv").config({
     path: `${__dirname}//src//config//.env.${process.env.NODE_ENV}`,
   });
@@ -42,11 +44,17 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     screenshot: "on",
-    video: "on"
+    video: "on",
   },
 
   /* Configure projects for major browsers */
   projects: [
+    // Setup project - runs first to authenticate and save session
+    {
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+    },
+
     // {
     //   name: 'chromium',
     //   use: { ...devices['Desktop Chrome'] },
@@ -79,7 +87,13 @@ export default defineConfig({
     // },
     {
       name: "Google Chrome",
-      use: { ...devices["Desktop Chrome"], channel: "chrome" },
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: "chrome",
+        // Use saved authentication state to avoid MFA
+        storageState: "src/config/auth.json",
+      },
+      dependencies: ["setup"], // Run setup first
     },
   ],
 

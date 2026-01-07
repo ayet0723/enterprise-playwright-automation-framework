@@ -1,20 +1,23 @@
 import { test } from "@playwright/test";
-import { decrypt } from "../utils/CryptojsUtil";
 import logger from "../utils/LoggerUtil";
 import cdata from "../testdata/datademo.json";
 import { convertCsvFileToJsonFile } from "../utils/CsvtoJsonUtil";
-import { exportToCsv, exportToJson, generateTestData } from "../utils/FakerDataUtil";
+import {
+  exportToCsv,
+  exportToJson,
+  generateTestData,
+} from "../utils/FakerDataUtil";
 import { demoOutput } from "../utils/fakersample";
-import LoginPage from "../pages/LoginPage";
+import HomePage from "../pages/HomePage";
 
 for (const contact of cdata) {
-  test.skip(`Advance DD test for ${contact.firstName} `, async ({ page }) => {
+  test(`Advance DD test for ${contact.firstName} `, async ({ page }) => {
     logger.info("Test for Contact Creation is started...");
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateToLoginPage();
-    await loginPage.fillUsername(decrypt(process.env.userid!));
-    await loginPage.fillPassword(decrypt(process.env.password!));
-    const homePage = await loginPage.clickLoginButton();
+
+    // Navigate to Salesforce home - already authenticated via saved session
+    await page.goto("/lightning/page/home");
+
+    const homePage = new HomePage(page);
     await homePage.expectServiceTitleToBeVisible();
     const contactsPage = await homePage.navigateToContactTab();
     await contactsPage.createNewContact(contact.firstName, contact.lastName);
@@ -26,15 +29,15 @@ for (const contact of cdata) {
   });
 }
 
-test.skip("simple DD test", async ({ page }) => {
+test("simple DD test", async ({ page }) => {
   logger.info("Test for Contact Creation is started...");
-  const fname = "Shiva";
-  const lname = "Rudra";
-  const loginPage = new LoginPage(page);
-  await loginPage.navigateToLoginPage();
-  await loginPage.fillUsername(decrypt(process.env.userid!));
-  await loginPage.fillPassword(decrypt(process.env.password!));
-  const homePage = await loginPage.clickLoginButton();
+  const fname = "AZ";
+  const lname = "GG";
+
+  // Navigate to Salesforce home - already authenticated via saved session
+  await page.goto("/lightning/page/home");
+
+  const homePage = new HomePage(page);
   await homePage.expectServiceTitleToBeVisible();
   const contactsPage = await homePage.navigateToContactTab();
   await contactsPage.createNewContact(fname, lname);
@@ -45,26 +48,21 @@ test.skip("simple DD test", async ({ page }) => {
   logger.info("Test for Contact Creation is completed");
 });
 
-test.skip("csv to json", async () => {
+test("csv to json", async () => {
   convertCsvFileToJsonFile("data.csv", "datademo.json");
 });
 
+test("demo faker", async () => {
+  console.log(demoOutput);
+});
 
-test.skip("demo faker", async () => { 
-
-  console.log(demoOutput)
-
- });
-
-test.skip("Faker", async ({ page }) => { 
-
+test("Faker", async ({ page }) => {
   // Generate test data
-const testData = generateTestData(20);
+  const testData = generateTestData(20);
 
-// Export data to JSON file
-exportToJson(testData, 'testData_en.json');
+  // Export data to JSON file
+  exportToJson(testData, "testData_en.json");
 
-// Export data to CSV file
-exportToCsv(testData, 'testData_en.csv');
-
- });
+  // Export data to CSV file
+  exportToCsv(testData, "testData_en.csv");
+});
