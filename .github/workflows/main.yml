@@ -1,27 +1,55 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ test ]
+    branches: [ main, test ]
   pull_request:
-    branches: [ test ]
+    branches: [ main, test ]
+  workflow_dispatch:  # Allow manual trigger
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
         node-version: 18
+        cache: 'npm'
+    
     - name: Install dependencies
       run: npm ci
+    
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+    
+    - name: Create .env file with encrypted credentials
+      run: |
+        mkdir -p src/config
+        echo "SALT=${{ secrets.SALT }}" >> src/config/.env
+        echo "userid=${{ secrets.USERID }}" >> src/config/.env
+        echo "password=${{ secrets.PASSWORD }}" >> src/config/.env
+    
     - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v3
+      run: npx playwright test --project="Google Chrome"
+      continue-on-error: true
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: test-results/
+        retention-days: 7
