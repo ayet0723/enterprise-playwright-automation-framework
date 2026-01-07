@@ -7,7 +7,7 @@ test("API test with existing context", async ({ page }) => {
   console.log(response);
   expect(response).toHaveProperty("page");
   expect(response).toHaveProperty("per_page");
- 
+
   // Assert data type and value for each property
   expect(typeof response.page).toBe("number");
   expect(response.page).toEqual(2);
@@ -39,14 +39,13 @@ test("API test with new context", async ({ playwright }) => {
     baseURL: "https://cat-fact.herokuapp.com",
   });
 
-  
   const apiResponse = await newcontext.get("/facts/");
   const apiResponseJson = await apiResponse.json();
   for (const obj of apiResponseJson) {
     // Assert properties of each object
-    expect(obj).toHaveProperty("status44");
+    expect(obj).toHaveProperty("status");
     expect(obj).toHaveProperty("_id");
-  
+
     // Specific assertions for nested properties
     expect(obj.status).toHaveProperty("verified");
     expect(obj.status).toHaveProperty("sentCount");
@@ -60,5 +59,3 @@ test("API test with new context", async ({ playwright }) => {
     expect(obj.deleted).toBe(false);
   }
 });
-
-
