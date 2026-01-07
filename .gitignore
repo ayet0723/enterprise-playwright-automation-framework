@@ -3,3 +3,14 @@ node_modules/
 /playwright-report/
 /playwright/.cache/
 /src/config/auth.json
+/src/config/.env
+/src/config/.env.*
+*.log
+.DS_Store
+.vscode/
+playwright-results/
+test-results/
+downloads/
+videos/
+screenshots/
+traces/

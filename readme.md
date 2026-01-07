@@ -1,104 +1,231 @@
-# Playwright Framework
+# Enterprise Playwright Automation Framework
 
-This repository contains a Playwright framework setup for automated testing. The framework is structured as follows:
+A comprehensive enterprise-grade test automation framework built with Playwright and TypeScript, featuring encrypted credential management, session-based authentication, data-driven testing, and self-healing capabilities.
 
-## Project Folder Structure
+## 🚀 Features
 
-Project Folder<br>
-├── node_modules <br>
-└── src<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── api<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── config<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── fixtures<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── logging<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── pages<br>
-&nbsp; &nbsp; &nbsp; &nbsp;├── testdata<br>
-&nbsp; &nbsp; &nbsp; &nbsp;└── tests<br>
-├─ playwright-report<br>
-│ .eslintrc.json<br>
-│ readme.md<br>
-│ .gitignore<br>
-│ package-lock.json<br>
-│ package.json<br>
-│ playwright.config.ts<br>
-│ requirements.md<br>
-│ tsconfig.json<br>
-├─ .github<br>
-│ &nbsp; &nbsp; &nbsp; &nbsp;└── workflows<br>
-│ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; └── main.yml<br>
+- **Session-Based Authentication** - Login once, save session, avoid MFA on subsequent test runs
+- **Encrypted Credentials** - Secure storage of sensitive data using AES encryption
+- **Page Object Model** - Maintainable and reusable page objects
+- **Data-Driven Testing** - Support for JSON and CSV test data
+- **Self-Healing Locators** - Automatic fallback for element selection
+- **Comprehensive Logging** - Winston-based logging for debugging
+- **Faker Data Generation** - Generate realistic test data on-the-fly
+- **GitHub Actions CI/CD** - Automated test execution on push/PR
+- **ESLint Integration** - Code quality and consistency
 
-## Description
+## 📁 Project Structure
 
-- `.eslintrc.json`: ESLint configuration file for linting TypeScript code.
-- `.gitignore`: Specifies intentionally untracked files to ignore in Git.
-- `package-lock.json` and `package.json`: Node.js package files specifying project dependencies.
-- `playwright.config.ts`: Configuration file for Playwright settings.
-- `requirements.md`: Document outlining project requirements.
-- `tsconfig.json`: TypeScript compiler options file.
+```
+enterprise-playwright-automation-framework/
+├── .github/
+│   └── workflows/
+│       └── main.yml          # GitHub Actions CI/CD pipeline
+├── src/
+│   ├── config/
+│   │   ├── .env              # Environment variables (encrypted credentials)
+│   │   ├── .env.qa           # QA environment config
+│   │   ├── .env.uat          # UAT environment config
+│   │   └── auth.json         # Saved browser session (auto-generated)
+│   ├── fixtures/
+│   │   └── loginFixture.ts   # Reusable login fixtures
+│   ├── pages/
+│   │   ├── LoginPage.ts      # Login page object
+│   │   ├── HomePage.ts       # Home page object
+│   │   ├── ContactPage.ts    # Contact page object
+│   │   └── CasePage.ts       # Case page object
+│   ├── testdata/
+│   │   ├── contacts.json     # Test data for contacts
+│   │   ├── datademo.json     # Sample test data
+│   │   └── *.csv            # CSV test data files
+│   ├── tests/
+│   │   ├── auth.setup.ts     # Authentication setup (runs first)
+│   │   ├── loginTest.spec.ts # Login test suite
+│   │   ├── contactTest.spec.ts # Contact creation tests
+│   │   └── *.spec.ts         # Other test suites
+│   └── utils/
+│       ├── CryptojsUtil.ts   # Encryption/decryption utilities
+│       ├── LoggerUtil.ts     # Winston logger configuration
+│       ├── FakerDataUtil.ts  # Test data generation
+│       ├── CsvtoJsonUtil.ts  # CSV to JSON converter
+│       └── SelfHealingUtil.ts # Self-healing locator logic
+├── test-results/             # Test execution results
+├── playwright-report/        # HTML test reports
+├── playwright.config.ts      # Playwright configuration
+├── package.json             # Dependencies and scripts
+├── tsconfig.json            # TypeScript configuration
+└── .gitignore               # Git ignore rules
+```
 
-### `.github`
+## 🛠️ Setup
 
-- `.github/workflows/main.yml`: GitHub Actions workflow file for continuous integration.
+### Prerequisites
+- Node.js 18+ installed
+- Git installed
+- A Salesforce or target application account
 
-### `node_modules`
+### Installation
 
-- Directory containing Node.js modules installed by npm.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/enterprise-playwright-automation-framework.git
+   cd enterprise-playwright-automation-framework
+   ```
 
-### `playwright-report`
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-- Directory for storing Playwright test reports.
+3. **Install Playwright browsers**
+   ```bash
+   npx playwright install --with-deps
+   ```
 
-### `src`
+4. **Configure environment variables**
+   
+   Create `.env` file in `src/config/` with your encrypted credentials:
+   ```
+   SALT=mySecretSalt123
+   userid=<encrypted_userid>
+   password=<encrypted_password>
+   ```
 
-- Source code directory containing project files.
+   To encrypt your credentials, run:
+   ```bash
+   node -e "const CryptoJS = require('crypto-js'); const SALT = 'mySecretSalt123'; const userid = 'your@email.com'; const password = 'yourPassword'; console.log('userid=' + CryptoJS.AES.encrypt(userid, SALT).toString()); console.log('password=' + CryptoJS.AES.encrypt(password, SALT).toString());"
+   ```
 
-#### `api`
+## 🏃 Running Tests
 
-- Directory for API-related scripts.
+### First Time Setup (with Authentication)
+Run tests for the first time - you'll complete login + MFA once, then the session is saved:
+```bash
+npx playwright test contactTest.spec.ts
+```
 
-#### `config`
+### Subsequent Test Runs (No MFA Needed)
+All tests will use the saved session from `auth.json`:
+```bash
+# Run all tests
+npx playwright test
 
-- Directory containing environment configuration files and authentication data.
+# Run specific test file
+npx playwright test loginTest.spec.ts
 
-#### `fixtures`
+# Run tests in headed mode (see browser)
+npx playwright test --headed
 
-- Directory for test fixtures, such as reusable functions for login.
+# Run tests in specific project
+npx playwright test --project="Google Chrome"
+```
 
-#### `logging`
+### Refresh Authentication Session
+If the session expires, refresh it by running:
+```bash
+npx playwright test auth.setup.ts --project=setup
+```
 
-- Directory for log files generated during test execution.
+### View Test Reports
+```bash
+npx playwright show-report
+```
 
-#### `pages`
+## 📝 Writing Tests
 
-- Page object files representing different pages of the application under test.
+### Using Saved Session (Recommended)
+```typescript
+import { test } from "@playwright/test";
+import HomePage from "../pages/HomePage";
 
-#### `testdata`
+test("my test with saved session", async ({ page }) => {
+  // Already authenticated - just navigate
+  await page.goto("/lightning/page/home");
+  
+  const homePage = new HomePage(page);
+  // ... your test code
+});
+```
 
-- Directory containing test data files in various formats, such as JSON and CSV.
+### Manual Login (if needed)
+```typescript
+import { test } from "@playwright/test";
+import LoginPage from "../pages/LoginPage";
+import { decrypt } from "../utils/CryptojsUtil";
 
-#### `tests`
+test("manual login test", async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.navigateToLoginPage();
+  await loginPage.fillUsername(decrypt(process.env.userid!));
+  await loginPage.fillPassword(decrypt(process.env.password!));
+  await loginPage.clickLoginButton();
+});
+```
 
-- Directory for test scripts written in TypeScript.
+## 🔒 Security
 
-#### `utils`
+- Credentials are encrypted using AES encryption
+- `.env` files are excluded from Git
+- `auth.json` session file is excluded from Git
+- Never commit sensitive data
 
-- Directory for utility scripts used in testing, such as encryption and logging utilities.
+## 🧪 CI/CD
 
-### `test-results`
+GitHub Actions workflow (`.github/workflows/main.yml`) automatically:
+- Runs on push to `test` branch
+- Installs dependencies and browsers
+- Executes test suite
+- Uploads test reports as artifacts
 
-- Directory for storing test execution results, including screenshots, trace files, and videos.
+## 📊 Test Reports
 
-## Usage
+After test execution:
+- HTML Report: `playwright-report/index.html`
+- Test Results: `test-results/`
+- Videos: Available for failed tests
+- Screenshots: Captured on failure
+- Traces: Available for debugging
 
-- Clone the repository and install dependencies using `npm install`.
-- Run tests using `npm test`.
-- View test reports in the `playwright-report` directory.
-- Explore source code files for detailed implementation.
+## 🛠️ Utilities
 
-## Contributing
+### Encryption/Decryption
+```typescript
+import { encrypt, decrypt } from "../utils/CryptojsUtil";
+const encrypted = encrypt("sensitiveData");
+const decrypted = decrypt(encrypted);
+```
 
-Contributions are welcome! Please follow the established coding style and guidelines. If you find any issues or have suggestions for improvements, feel free to open an issue or submit a pull request.
+### Logger
+```typescript
+import logger from "../utils/LoggerUtil";
+logger.info("Test started");
+logger.error("Test failed");
+```
 
-## License
+### Faker Data Generation
+```typescript
+import { generateTestData, exportToJson } from "../utils/FakerDataUtil";
+const testData = generateTestData(10);
+exportToJson(testData, "output.json");
+```
 
-This project is licensed under the [MIT License](LICENSE).
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the ISC License.
+
+## 👤 Author
+
+**Azima**
+
+## 🙏 Acknowledgments
+
+- Playwright Team for the excellent testing framework
+- Community contributors
